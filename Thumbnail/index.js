@@ -37,9 +37,9 @@ module.exports = (context, eventGridEvent, inputBlob) => {
   const blobUrl = context.bindingData.data.url;
   const blobName = blobUrl.slice(blobUrl.lastIndexOf("/")+1);
 
-  const image = await Jimp.read(inputBlob);
+  const image = Jimp.read(inputBlob);
   const thumbnail = image.resize(widthInPixels, Jimp.AUTO);
-  const thumbnailBuffer = await thumbnail.getBufferAsync(Jimp.AUTO);
+  const thumbnailBuffer = thumbnail.getBufferAsync(Jimp.AUTO);
   const readStream = stream.PassThrough();
   readStream.end(thumbnailBuffer);
 
@@ -47,7 +47,7 @@ module.exports = (context, eventGridEvent, inputBlob) => {
   const blockBlobURL = BlockBlobURL.fromContainerURL(containerURL, blobName);
   try {
 
-    await uploadStreamToBlockBlob(aborter, readStream,
+    uploadStreamToBlockBlob(aborter, readStream,
       blockBlobURL, uploadOptions.bufferSize, uploadOptions.maxBuffers,
       { blobHTTPHeaders: { blobContentType: "image/*" } });
 
